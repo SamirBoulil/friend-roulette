@@ -1,33 +1,24 @@
 import React, {useEffect, useState} from 'react';
-import {Button, Linking, StyleSheet, Text, View} from 'react-native';
+import {Button, Platform, StyleSheet, View} from 'react-native';
 import {FriendsSelector} from "./src/FriendsSelector";
 import {fetchFriends, saveFriends} from "./src/FriendStore";
-
-function Friend({friend}) {
-  return <View>
-    <Button title={`Call ${friend.firstName} ${friend.lastName}!`} onPress={() => Linking.openURL(`tel:${friend.phoneNumbers[0].number}`)}/>
-  </View>;
-}
-
-function pickFriendRandomly(friends) {
-  return friends[Math.floor(Math.random() * friends.length)];
-}
+import {AdMobBanner} from 'expo-ads-admob';
+import {Roulette} from "./src/Roulette";
 
 function shouldDisplayFriendSelector(friends) {
-  return friends.length !== 0;
+  return friends.length === 0;
 }
+
+const bannerAddUnit = Platform.OS === 'ios' ? "ca-app-pub-5835627539614976/5497430882" : "ca-app-pub-5835627539614976/2292435627"
 
 export default function App() {
   const [friends, setFriends] = useState([]);
-  const [isSelectingContacts, setIsSelectingContacts] = useState(true);
-  const [friendToCall, setFriendToCall] = useState(null); // To extract in dedicated Roulette component
+  const [isPickingFriends, setIsPickingFriends] = useState(true);
 
   useEffect(() => {
         (async () => {
-          let friends = await fetchFriends();
-          console.log("Friends fetched");
-          setFriends(friends);
-          setIsSelectingContacts(shouldDisplayFriendSelector(friends));
+          setFriends(await fetchFriends());
+          setIsPickingFriends(shouldDisplayFriendSelector(await fetchFriends()));
         })();
       },
       []
@@ -35,18 +26,24 @@ export default function App() {
 
   return (
       <View>
-        {isSelectingContacts ? (
+        {isPickingFriends ? (
           <FriendsSelector selectedFriendIds={friends.map(friend => friend.id)} onSelection={async friends => {
             await saveFriends(friends);
             setFriends(friends);
-            setIsSelectingContacts(false);
+            setIsPickingFriends(false);
           }}/>
         ) : (
             <>
-              <Button title={"Select contact randomly"} onPress={() => setFriendToCall(pickFriendRandomly(friends))}/>
-              {friendToCall && <Friend friend={friendToCall}/>}
+              <Button title={"Pick more contacts"} onPress={() => setIsPickingFriends(true)}/>
+              <Roulette friends={friends} />
             </>
         )}
+        <AdMobBanner
+            bannerSize="fullBanner"
+            adUnitID={bannerAddUnit}
+            testDeviceID="EMULATOR"
+            servePersonalizedAds
+            onDidFailToReceiveAdWithError={(error) => console.log(error)} />
       </View>
   );
 }

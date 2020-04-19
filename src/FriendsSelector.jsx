@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState} from 'react';
 import {Text, View, SectionList, StyleSheet, Button, TouchableWithoutFeedback} from "react-native";
 import {useContacts} from "./UseContacts";
 import _ from 'lodash';
@@ -18,7 +18,7 @@ function fromArrayToSectionData(contacts) {
     return contactSections;
 }
 
-const showEmptyList = () => (
+const ShowEmptyList = () => (
     <View>
         <Text>Aucun résultat!</Text>
     </View>
@@ -47,7 +47,7 @@ const showContact = (onPress) => {
     )
 };
 
-const addFriends = (contacts, numberOfFriends, onAdd) => (
+const AddFriends = (contacts, numberOfFriends, onAdd) => (
     numberOfFriends > 0 ?
         <Button title={`Add ${numberOfFriends} contact${numberOfFriends > 1 ? 's' : ''}!`}
                 onPress={() => onAdd(contacts.filter(contact => contact.isSelected))}/>
@@ -77,12 +77,12 @@ export const FriendsSelector = ({selectedFriendIds, onSelection}) => {
     return (
         <View>
             <SectionList
+                keyExtractor={contact => contact.id}
                 sections={contactsSortedAlphabetically}
                 renderItem={showContact(onPress)}
-                keyExtractor={contact => contact.id}
-                ListEmptyComponent={showEmptyList}
                 renderSectionHeader={showSection}
-                ListFooterComponent={addFriends(contacts, numberOfSelectedFriends, onSelection)}
+                ListEmptyComponent={ShowEmptyList}
+                ListFooterComponent={AddFriends(contacts, numberOfSelectedFriends, onSelection)}
             />
         </View>
     );
