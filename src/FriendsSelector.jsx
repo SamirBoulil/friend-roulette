@@ -13,7 +13,7 @@ function fromArrayToSectionData(contacts) {
         },
         []
     );
-    contactSections = _.orderBy(contactSections, ["id"]);
+    contactSections = _.orderBy(contactSections, ["key"]);
 
     return contactSections;
 }
@@ -57,9 +57,8 @@ const addFriends = (contacts, numberOfFriends, onAdd) => (
 export const FriendsSelector = ({selectedFriendIds, onSelection}) => {
     const [contacts, setContacts] = useState([]);
     const setContactsWithSelection = (contacts) => {
-        const allContacts = contacts.map(contact => ({...contact, isSelected: selectedFriendIds.includes(contact.id)}));
-        console.log("merge contacts and friends!")
-        console.log(allContacts);
+        const allContacts = contacts
+            .map(contact => ({...contact, isSelected: selectedFriendIds.includes(contact.id)}));
         setContacts(allContacts);
     };
     useContacts(setContactsWithSelection, selectedFriendIds);

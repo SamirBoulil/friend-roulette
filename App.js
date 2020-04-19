@@ -5,11 +5,9 @@ import {fetchFriends, saveFriends} from "./src/FriendStore";
 
 function Friend({friend}) {
   return <View>
-    <Text>{friend.firstName} {friend.lastName}</Text>
-    <Button title={"Call!"} onPress={() => Linking.openURL(`tel:${friend.phoneNumbers[0].number}`)}/>
+    <Button title={`Call ${friend.firstName} ${friend.lastName}!`} onPress={() => Linking.openURL(`tel:${friend.phoneNumbers[0].number}`)}/>
   </View>;
 }
-
 
 function pickFriendRandomly(friends) {
   return friends[Math.floor(Math.random() * friends.length)];
