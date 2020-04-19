@@ -1,10 +1,6 @@
 import {useEffect} from 'react'
 import {Platform} from 'react-native';
-import {
-    requestPermissionsAsync,
-    getContactsAsync,
-    Fields
-} from 'expo-contacts';
+import {Fields, getContactsAsync, requestPermissionsAsync} from 'expo-contacts';
 
 function hasPhoneAndName(contact) {
     return (
@@ -32,7 +28,7 @@ function adaptToContact(contact) {
     }
 }
 
-export const useContacts = (selectedFriends, setContacts) => {
+export const useContacts = (setContacts, dependency) => {
     if (Platform.OS === 'web') {
         useEffect(() => {
             setContacts([
@@ -44,7 +40,6 @@ export const useContacts = (selectedFriends, setContacts) => {
                         {number: '0606060606', label: 'home', id: '1'},
                         {number: '1616161616', label: 'home', id: '2'},
                     ],
-                    isSelected: true,
                 },
                 {
                     id: '2',
@@ -54,10 +49,18 @@ export const useContacts = (selectedFriends, setContacts) => {
                         {number: '1717171717', label: 'home', id: '1'},
                         {number: '1717171717', label: 'home', id: '1'},
                     ],
-                    isSelected: false,
+                },
+                {
+                    id: '3',
+                    firstName: 'Isabelle',
+                    lastName: 'Boulil',
+                    phoneNumbers: [
+                        {number: '1818181818', label: 'home', id: '1'},
+                        {number: '1818181818', label: 'home', id: '1'},
+                    ],
                 },
             ]);
-        }, [])
+        }, [dependency])
     } else {
         useEffect(() => {
             ;(async () => {
@@ -79,7 +82,7 @@ export const useContacts = (selectedFriends, setContacts) => {
                     const contactCandidates = data
                         .filter(hasPhoneAndName)
                         .map(adaptToContact)
-                        .map((contact) => ({...contact, isSelected: selectedFriends.includes(contact.id)}))
+                        .map(contact => ({...contact, isSelected: selectedFriends.includes(contact.id)}))
                     ;
 
                     setContacts(contactCandidates)

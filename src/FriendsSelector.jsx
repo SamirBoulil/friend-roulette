@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {Text, View, SectionList, StyleSheet, Button, TouchableWithoutFeedback} from "react-native";
 import {useContacts} from "./UseContacts";
 import _ from 'lodash';
@@ -47,13 +47,28 @@ const showContact = (onPress) => {
     )
 };
 
-export const FriendsSelector = ({selectedFriends, onSelection}) => {
+const addFriends = (contacts, numberOfFriends, onAdd) => (
+    numberOfFriends > 0 ?
+        <Button title={`Add ${numberOfFriends} contact${numberOfFriends > 1 ? 's' : ''}!`}
+                onPress={() => onAdd(contacts.filter(contact => contact.isSelected))}/>
+        : null
+);
+
+export const FriendsSelector = ({selectedFriendIds, onSelection}) => {
     const [contacts, setContacts] = useState([]);
-    useContacts(selectedFriends, setContacts);
+    const setContactsWithSelection = (contacts) => {
+        const allContacts = contacts.map(contact => ({...contact, isSelected: selectedFriendIds.includes(contact.id)}));
+        console.log("merge contacts and friends!")
+        console.log(allContacts);
+        setContacts(allContacts);
+    };
+    useContacts(setContactsWithSelection, selectedFriendIds);
+
     const contactsSortedAlphabetically = fromArrayToSectionData(contacts);
+    const numberOfSelectedFriends = contacts.filter((contact) => contact.isSelected).length;
 
     // Should not be defined here
-    let onPress = (selectedContactId) => setContacts(
+    const onPress = (selectedContactId) => setContacts(
         contacts.map(contact => contact.id === selectedContactId ? {
             ...contact,
             isSelected: !contact.isSelected
@@ -68,8 +83,8 @@ export const FriendsSelector = ({selectedFriends, onSelection}) => {
                 keyExtractor={contact => contact.id}
                 ListEmptyComponent={showEmptyList}
                 renderSectionHeader={showSection}
+                ListFooterComponent={addFriends(contacts, numberOfSelectedFriends, onSelection)}
             />
-            <Button title="Add contacts!" onPress={() => onSelection(contacts.filter(contact => contact.isSelected))} />
         </View>
     );
 }

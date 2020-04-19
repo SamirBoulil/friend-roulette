@@ -8,6 +8,7 @@
     "eject": "expo eject"
   },
   "dependencies": {
+    "@react-native-community/async-storage": "^1.9.0",
     "expo": "~37.0.3",
     "expo-contacts": "^8.1.0",
     "lodash": "^4.17.15",

@@ -1,6 +1,7 @@
-import React, {useState} from 'react';
-import {StyleSheet, Linking, Text, View, Button} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {Button, Linking, StyleSheet, Text, View} from 'react-native';
 import {FriendsSelector} from "./src/FriendsSelector";
+import {fetchFriends, saveFriends} from "./src/FriendStore";
 
 function Friend({friend}) {
   return <View>
@@ -14,19 +15,38 @@ function pickFriendRandomly(friends) {
   return friends[Math.floor(Math.random() * friends.length)];
 }
 
+function shouldDisplayFriendSelector(friends) {
+  return friends.length !== 0;
+}
+
 export default function App() {
-  const [isSelectingContacts, setIsSelectingContacts] = useState(true);
   const [friends, setFriends] = useState([]);
-  const [friend, setFriend] = useState(null);
+  const [isSelectingContacts, setIsSelectingContacts] = useState(true);
+  const [friendToCall, setFriendToCall] = useState(null); // To extract in dedicated Roulette component
+
+  useEffect(() => {
+        (async () => {
+          let friends = await fetchFriends();
+          console.log("Friends fetched");
+          setFriends(friends);
+          setIsSelectingContacts(shouldDisplayFriendSelector(friends));
+        })();
+      },
+      []
+  );
 
   return (
       <View>
         {isSelectingContacts ? (
-          <FriendsSelector onSelection={(friends) => setFriends(friends)}/>
+          <FriendsSelector selectedFriendIds={friends.map(friend => friend.id)} onSelection={async friends => {
+            await saveFriends(friends);
+            setFriends(friends);
+            setIsSelectingContacts(false);
+          }}/>
         ) : (
             <>
-              <Button title={"Select contact randomly"} onPress={() => setFriend(pickFriendRandomly(friends))}/>
-              {friend && <Friend friend={friend}/>}
+              <Button title={"Select contact randomly"} onPress={() => setFriendToCall(pickFriendRandomly(friends))}/>
+              {friendToCall && <Friend friend={friendToCall}/>}
             </>
         )}
       </View>
