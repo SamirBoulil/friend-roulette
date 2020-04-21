@@ -35,7 +35,12 @@ export default function App() {
         ) : (
             <>
               <Button title={"Pick more contacts"} onPress={() => setIsPickingFriends(true)}/>
-              <Roulette friends={friends} />
+              <Roulette
+                  friends={friends}
+                  onCall={(calledFriend) => {
+                      setFriends(friends.map(friend => (calledFriend.id === friend.id ? {...friend, hasBeenCalled: true} : friend)))
+                  }}
+              />
             </>
         )}
         <AdMobBanner
