@@ -1,0 +1,5 @@
+{
+    "resolver": {
+        "sourceExts": ["jsx","js"]
+    }
+}
