@@ -19,12 +19,6 @@ function sortContactsAlphabetically(contacts) {
     return contactSections;
 }
 
-const showSection = ({section}) => (
-    <View style={{padding: 8, backgroundColor: '#4fc3c8'}}>
-        <Text style={{color: 'white'}}>{section.key.toUpperCase()}</Text>
-    </View>
-);
-
 const showContact = (onPress) => {
     return ({item: contact}) => (
         !contact.isSelected ?
@@ -43,6 +37,21 @@ const showContact = (onPress) => {
     )
 };
 
+const useContacts = (friends) => {
+    const [contacts, setContacts] = useState([]);
+    useEffect(() => {
+        (async () => {
+            const friendIds = friends.map(friend => friend.id);
+            const contactsWithoutFriends = (await fetchAllContacts(setContacts)).map(contact => {
+                return {...contact, isSelected: friendIds.includes(contact.id)};
+            });
+            setContacts(sortContactsAlphabetically(contactsWithoutFriends));
+        })();
+    }, []);
+
+    return [contacts, setContacts];
+};
+
 const showFriend = (onPress) => {
     return ({item: contact}) => (
         <TouchableWithoutFeedback onPress={() => onPress(contact)}>
@@ -59,35 +68,35 @@ const showFriend = (onPress) => {
     )
 };
 
+const AddFriends = ({friends, onAdd}) => {
+    const numberOfFriends = friends.length;
+
+    return numberOfFriends > 0 ?
+        <Button
+            title={`Add ${numberOfFriends} contact${numberOfFriends > 1 ? 's' : ''}!`}
+            onPress={() => onAdd(friends)}/>
+        : null;
+};
+
 const ShowEmptyListComponent = () => (
     <View>
         <Text>Aucun résultat!</Text>
     </View>
 );
 
-const addFriendsComponent = (friends, onAdd) => {
-    const numberOfFriends = friends.length;
+const showSection = ({section}) => (
+    section.key === 'selected_friends' ?
+        <Header />
+        :
+    <View style={{padding: 15, backgroundColor: 'white'}}>
+        <Text style={{color: 'black'}}>{section.key.toUpperCase()}</Text>
+    </View>
+);
 
-    return numberOfFriends > 0 ?
-        <Button title={`Add ${numberOfFriends} contact${numberOfFriends > 1 ? 's' : ''}!`}
-                onPress={() => onAdd(friends)}/>
-        : null;
-};
+const Header = () => <View style={{padding: 15, backgroundColor: 'black'}}>
+    <Text style={{color: 'white', fontSize: 36, fontStyle: 'bold'}}>Your Friends</Text>
+</View>;
 
-const useContacts = (friends) => {
-    const [contacts, setContacts] = useState([]);
-    useEffect(() => {
-        (async () => {
-            const friendIds = friends.map(friend => friend.id);
-            const contactsWithoutFriends = (await fetchAllContacts(setContacts)).map(contact => {
-                return {...contact, isSelected: friendIds.includes(contact.id)};
-            });
-            setContacts(sortContactsAlphabetically(contactsWithoutFriends));
-        })();
-    }, []);
-
-    return [contacts, setContacts];
-};
 
 export const FriendsSelector = ({selectedFriends, onSelection}) => {
     const [friends, setFriends] = useState(selectedFriends);
@@ -116,16 +125,20 @@ export const FriendsSelector = ({selectedFriends, onSelection}) => {
         setContacts(contacts);
     };
 
-    const listToDisplay = [{key: "Selected friends", data: friends, renderItem: showFriend(onRemoveFriend)}, ...contacts];
+    const listToDisplay = [{key: 'selected_friends', data: friends, renderItem: showFriend(onRemoveFriend)}, ...contacts];
     return (
-        <SectionList
-            keyExtractor={contact => contact.id}
-            sections={listToDisplay}
-            renderItem={showContact(onAddFriend)}
-            renderSectionHeader={showSection}
-            ListEmptyComponent={ShowEmptyListComponent}
-            ListFooterComponent={addFriendsComponent(friends, onSelection)}
-        />
+        <>
+            <AddFriends friends={friends} onAdd={onSelection} />
+            <SectionList
+                keyExtractor={contact => contact.id}
+                sections={listToDisplay}
+                renderItem={showContact(onAddFriend)}
+                renderSectionHeader={showSection}
+                ListEmptyComponent={ShowEmptyListComponent}
+                // ListFooterComponent={addFriends(friends, onSelection)}
+                stickySectionHeadersEnabled={true}
+            />
+        </>
     );
 };
 
@@ -143,4 +156,4 @@ const styles = StyleSheet.create({
         color: 'black',
     },
     secondaryText: {color: 'grey'},
-})
+});
