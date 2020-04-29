@@ -22,12 +22,10 @@
       "**/*"
     ],
     "android": {
-      "googleMobileAdsAppId": "ca-app-pub-5835627539614976~2296552479",
-      "package": "friend-roulette"
+      "package": "com.friend_roulette"
     },
     "ios": {
       "supportsTablet": true,
-      "googleMobileAdsAppId": "ca-app-pub-5835627539614976~1749757560",
       "bundleIdentifier": "friend-roulette"
     },
     "entryPoint": "node_modules/expo/AppEntry.js"
