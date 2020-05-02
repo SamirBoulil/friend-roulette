@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Button, StyleSheet, SafeAreaView} from 'react-native';
+import {Button, SafeAreaView, StyleSheet} from 'react-native';
 import {FriendsSelector} from "./src/FriendsSelector/FriendsSelector";
 import {fetchFriends, saveFriends} from "./src/FriendStore";
 import {Roulette} from "./src/Roulette";
@@ -9,9 +9,34 @@ function shouldDisplayFriendSelectorOnStart(friends) {
 }
 
 async function selectFriendsAndCloseSelector(friends, setFriends, setIsPickingFriends) {
-    await saveFriends(friends);
-    setFriends(friends);
+    console.group('Add friends');
+    const friendsToCall = friends.map(friend => ({...friend, hasBeenCalled: false}));
+    console.log(friendsToCall);
+    console.groupEnd();
+
+    await saveFriends(friendsToCall);
+    setFriends(friendsToCall);
     setIsPickingFriends(false);
+}
+
+const friendsToCall = (friends) => {
+    return friends.filter(friends => !friends.hasBeenCalled);
+}
+
+async function setFriendHasBeenCalled(friends, calledFriend, setFriends) {
+    let updatedFriends = friends.map(
+        friend => (calledFriend.id === friend.id ? {
+            ...friend,
+            hasBeenCalled: true
+        } : friend)
+    );
+
+    if (friendsToCall(updatedFriends).length === 0) {
+        updatedFriends = friends.map(friend => ({...friend, hasBeenCalled: false}))
+    }
+
+    await saveFriends(updatedFriends);
+    setFriends(updatedFriends)
 }
 
 export default function App() {
@@ -38,12 +63,9 @@ export default function App() {
             ) : (
                 <>
                     <Roulette
-                        friends={friends}
-                        onCall={(calledFriend) => {
-                            setFriends(friends.map(friend => (calledFriend.id === friend.id ? {
-                                ...friend,
-                                hasBeenCalled: true
-                            } : friend)))
+                        friends={friendsToCall(friends)}
+                        onCall={async calledFriend => {
+                            await setFriendHasBeenCalled(friends, calledFriend, setFriends);
                         }}
                     />
                     <Button title={"Pick more contacts"} onPress={() => setIsPickingFriends(true)}/>

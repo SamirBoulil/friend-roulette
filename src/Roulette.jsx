@@ -19,6 +19,9 @@ function pickFriendRandomly(friends) {
 }
 
 export const Roulette = ({friends, onCall}) => {
+    console.group('Friends in roulette');
+    console.log(friends);
+    console.groupEnd();
     const [friendToCall, setFriendToCall] = useState(pickFriendRandomly(friends));
 
     return (
