@@ -1,17 +1,22 @@
 import React, {useState} from 'react';
-import {Button, Linking, View} from "react-native";
+import {Text, Button, TouchableOpacity, Linking, StyleSheet, View, Image} from "react-native";
 
 
 function Friend({friend, onCallCompleted}) {
-    return <View>
-        <Button
-            title={`Call ${friend.firstName} ${friend.lastName}!`}
+    return (
+        <TouchableOpacity
+            style={styles.friend}
             onPress={() => {
                 Linking.openURL(`tel:${friend.phoneNumbers[0].number}`);
                 onCallCompleted(friend);
-            }}
-        />
-    </View>;
+            }}>
+            <Image style={styles.portrait} source={friend.image && {uri: friend.image}}/>
+            <View style={styles.nameContainer} >
+                <Text style={styles.name}>{friend.firstName}</Text>
+                <Text style={styles.name}>{friend.lastName}</Text>
+            </View>
+        </TouchableOpacity>
+    );
 }
 
 function pickFriendRandomly(friends) {
@@ -21,13 +26,54 @@ function pickFriendRandomly(friends) {
 export const Roulette = ({friends, onCall}) => {
     console.group('Friends in roulette');
     console.log(friends);
-    console.groupEnd();
     const [friendToCall, setFriendToCall] = useState(pickFriendRandomly(friends));
-
+    console.log(friendToCall.image);
+    console.groupEnd();
     return (
-        <>
-            <Button title={"Pick a friend to call!"} onPress={() => setFriendToCall(pickFriendRandomly(friends))}/>
+        <View style={styles.container}>
             {friendToCall && <Friend friend={friendToCall} onCallCompleted={(contact) => {onCall(contact)}}/>}
-        </>
+            <Button title={"Pick a friend to call!"} onPress={() => setFriendToCall(pickFriendRandomly(friends))}/>
+        </View>
     );
-}
+};
+
+const styles = StyleSheet.create({
+    container: {
+        backgroundColor: '#fff',
+        marginTop: 25,
+        marginBottom: 25,
+    },
+    friend: {
+        position: 'relative',
+        alignItems: 'center',
+        alignSelf: 'stretch',
+        flex: 1,
+        marginTop: 50,
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        borderWidth: 2,
+        borderColor: 'black',
+        borderRadius: 2,
+        width: 300,
+        padding: 15,
+
+        backgroundColor: 'grey',
+    },
+    portrait: {
+        position: 'absolute',
+        top: - (100/2),
+        borderWidth: 2,
+        borderColor: 'black',
+        width: 100,
+        height: 100,
+        borderRadius: 25,
+    },
+    nameContainer: {
+      marginTop: 30,
+        textAlign: 'center'
+    },
+    name: {
+        fontWeight: 'bold',
+        fontSize: 50
+    }
+});
