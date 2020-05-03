@@ -1,8 +1,9 @@
 import React, {useEffect, useState} from 'react';
-import {Button, SafeAreaView, StyleSheet} from 'react-native';
+import {Text, SafeAreaView, StyleSheet, TouchableOpacity} from 'react-native';
 import {FriendsSelector} from "./src/FriendsSelector/FriendsSelector";
 import {fetchFriends, saveFriends} from "./src/FriendStore";
 import {Roulette} from "./src/Roulette";
+import {MaterialCommunityIcons} from "@expo/vector-icons";
 
 function shouldDisplayFriendSelectorOnStart(friends) {
     return friends.length === 0;
@@ -39,6 +40,18 @@ async function setFriendHasBeenCalled(friends, calledFriend, setFriends) {
     setFriends(updatedFriends)
 }
 
+const AddFriendsButton = ({onAddFriends}) => {
+    return <TouchableOpacity style={styles.addFriendsButton} onPress={onAddFriends}>
+        <MaterialCommunityIcons style={styles.anotherFriend}
+                                size={54}
+                                name="account-multiple-plus"
+                                color='black'
+
+        />
+        <Text style={{marginLeft: 10}}>Add more friends</Text>
+    </TouchableOpacity>;
+}
+
 export default function App() {
     const [friends, setFriends] = useState([]);
     const [isPickingFriends, setIsPickingFriends] = useState(shouldDisplayFriendSelectorOnStart(friends));
@@ -68,7 +81,7 @@ export default function App() {
                             await setFriendHasBeenCalled(friends, calledFriend, setFriends);
                         }}
                     />
-                    <Button title={"Pick more contacts"} onPress={() => setIsPickingFriends(true)}/>
+                    <AddFriendsButton onAddFriends={() => setIsPickingFriends(true)} />
                 </>
             )}
         </SafeAreaView>
@@ -82,4 +95,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
+    addFriendsButton: {
+        backgroundColor: 'grey',
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        flex: 1
+    }
 });

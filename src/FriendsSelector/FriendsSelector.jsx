@@ -1,8 +1,18 @@
 import React, {useEffect, useState} from 'react';
-import {Button, SectionList, StyleSheet, Text, TouchableWithoutFeedback, View, Image} from "react-native";
+import {
+    Button,
+    SectionList,
+    StyleSheet,
+    Text,
+    TouchableWithoutFeedback,
+    View,
+    Image,
+    TouchableOpacity
+} from "react-native";
 import _ from 'lodash';
 import {fetchAllContacts} from "./ContactsFetcher";
 import Constants from "expo-constants";
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 function sortContactsAlphabetically(contacts) {
     let contactSections = _.groupBy(contacts, d => d.firstName.charAt(0));
@@ -19,24 +29,6 @@ function sortContactsAlphabetically(contacts) {
     return contactSections;
 }
 
-const showContact = (onPress) => {
-    return ({item: contact}) => (
-        !contact.isSelected ?
-                <TouchableWithoutFeedback onPress={() => onPress(contact)}>
-                    <View style={styles.row}>
-                        <Image style={styles.picture} source={contact.image && {uri: contact.image}}/>
-                        <View style={{flexGrow: 1}}>
-                            <Text style={styles.primaryText}>
-                                {contact.firstName + ' ' + contact.lastName}
-                            </Text>
-                            <Text>Add</Text>
-                        </View>
-                    </View>
-                </TouchableWithoutFeedback>
-             : null
-    )
-};
-
 const useContacts = (friends) => {
     const [contacts, setContacts] = useState([]);
     useEffect(() => {
@@ -52,6 +44,24 @@ const useContacts = (friends) => {
     return [contacts, setContacts];
 };
 
+const showContact = (onPress) => {
+    return ({item: contact}) => (
+        !contact.isSelected ?
+                <TouchableWithoutFeedback onPress={() => onPress(contact)}>
+                    <View style={styles.row}>
+                        <Image style={styles.picture} source={contact.image && {uri: contact.image}}/>
+                        <View style={{flexGrow: 1}}>
+                            <Text style={styles.primaryText}>
+                                {contact.firstName + ' ' + contact.lastName}
+                            </Text>
+                        </View>
+                        <MaterialCommunityIcons size={40} name="plus-circle-outline" color={'black'} />
+                    </View>
+                </TouchableWithoutFeedback>
+             : null
+    )
+};
+
 const showFriend = (onPress) => {
     return ({item: contact}) => (
         <TouchableWithoutFeedback onPress={() => onPress(contact)}>
@@ -62,7 +72,7 @@ const showFriend = (onPress) => {
                         {contact.firstName + ' ' + contact.lastName}
                     </Text>
                 </View>
-                <Text style={{color: "black", fontSize: 24}}>✔</Text>
+                <MaterialCommunityIcons size={40} name="check" color={'black'} />
             </View>
         </TouchableWithoutFeedback>
     )
